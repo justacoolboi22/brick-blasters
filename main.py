@@ -176,6 +176,6 @@ while running:
         elif show_message_good: 
             screen.blit(font_sub.render("Victory! Press SPACE for next round", True, (0, 255, 0)), (410, 320))
             
-    pygame.display.flip()
+    pygame.display.update()
 
 pygame.quit()

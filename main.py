@@ -24,7 +24,6 @@ running = True
 
 # --- FONT LOADING ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Replace your old FONT_PATH logic with this:
 FONT_PATH = resource_path("WorkSans-Regular.ttf")
 
 if os.path.exists(FONT_PATH):

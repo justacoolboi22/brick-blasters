@@ -3,6 +3,7 @@ import pygame_widgets
 import os
 import sys
 import random
+from cryptography.fernet import Fernet
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -89,6 +90,47 @@ difficulty_buttons = [
     {"rect": pygame.Rect(440, 560, 400, 80), "label": "Holy", "speed": 17}
 ]
 
+
+keyfile = "score.key"
+def load_or_create_key():
+    # If the key file doesn't exist, generate a new one
+    if not os.path.exists(keyfile):
+        key = Fernet.generate_key()
+        with open(keyfile, "wb") as key_file:
+            key_file.write(key)
+        return key
+    else:
+        # Load the existing key
+        with open(keyfile, "rb") as key_file:
+            return key_file.read()
+# CRYPTOGRAPHY VARIABLES
+secretkey = load_or_create_key()
+cipher = Fernet(secretkey)
+savefile = "score.dat"
+
+
+
+
+# --- CRYPTOGRAPHY LOGIC ---
+def save_score(score):
+    encryptedscore = cipher.encrypt(str(score).encode())
+    with open(savefile, "wb") as f:
+        f.write(encryptedscore)
+
+def load_high_score():
+    if not os.path.exists(savefile):
+        return 0
+    try:
+        with open(savefile, "rb") as f:
+            encrypteddata = f.read()
+            decrypteddata = cipher.decrypt(encrypteddata)
+            return int(decrypteddata.decode())
+    except:
+            return 0
+# SCORE VARIABLES
+score = 0
+high_score = load_high_score()
+
 # Keep track of which speed to use
 game_speed = 8
 
@@ -106,6 +148,9 @@ while running:
                     speed_x = game_speed
                     speed_y = -game_speed
                     game_state = STATE_PLAYING
+                    if show_message_bad or show_message_good:
+                        show_message_bad = False
+                        show_message_good = False
 
         if event.type == pygame.KEYDOWN:
             # Fullscreen Toggle
@@ -127,6 +172,9 @@ while running:
                     show_message_good = False
                     flash_timer = 0.0
                     bricks = reset_bricks()
+                    score = 0
+                elif event.key == pygame.K_ESCAPE:
+                    game_state = STATE_CHOOSING_DIFF
 
     # --- PHYSICS ---
     if game_state == STATE_PLAYING and not show_message_bad and not show_message_good:
@@ -153,6 +201,7 @@ while running:
         for brick in bricks[:]:
             if ball_rect.colliderect(brick):
                 speed_y *= -1
+                score += 5
                 bricks.remove(brick)
                 break
         if not bricks: show_message_good = True
@@ -166,6 +215,8 @@ while running:
         pygame.draw.rect(screen, (30, 30, 50), (box_x, box_y, box_w, 450), border_radius=15)
         pygame.draw.rect(screen, (0, 255, 255), (box_x, box_y, box_w, 450), width=3, border_radius=15)
         
+        screen.blit(font_sub.render("V1.2", True, (0, 0, 255)), (610, 170))
+
         y = 240
         for line in wrap_text("How to play (and an extra cool bug I discovered and decided was too fun to keep!)", font_sub, box_w-60):
             screen.blit(font_sub.render(line, True, (255, 255, 255)), (180, y))
@@ -189,6 +240,13 @@ while running:
         for b in bricks: pygame.draw.rect(screen, (0, 0, 255), b)
         pygame.draw.ellipse(screen, (255, 255, 255), ball_rect)
 
+        # Render score
+        score_text = font_body.render(f"Score: {score}", True, (255, 255, 255))
+        high_score_text = font_body.render(f"High Score: {high_score}", True, (255, 255, 0))
+
+        screen.blit(score_text, (10, 10))
+        screen.blit(high_score_text, (10, 40))
+
         # Dynamic Color Math
         r = int((COLOR_PADDLE_FLASH[0] * flash_timer) + (COLOR_PADDLE_BASE[0] * (1.0 - flash_timer)))
         g = int((COLOR_PADDLE_FLASH[1] * flash_timer) + (COLOR_PADDLE_BASE[1] * (1.0 - flash_timer)))
@@ -196,9 +254,15 @@ while running:
         pygame.draw.rect(screen, (r, g, b), paddle_rect)
 
         if show_message_bad: 
-            screen.blit(font_sub.render("You lose! Press SPACE to restart.", True, (255, 0, 0)), (430, 320))
+            screen.blit(font_sub.render("You lose! Press SPACE to restart or press ESCAPE to choose a different difficulty.", True, (255, 0, 0)), (250, 320))
+            if score > high_score:
+                high_score = score
+                save_score(high_score)
         elif show_message_good: 
-            screen.blit(font_sub.render("You win! Press SPACE to start a new round.", True, (0, 255, 0)), (410, 320))
+            screen.blit(font_sub.render("You win! Press SPACE to start a new round or press ESCAPE to choose a different difficulty.", True, (0, 255, 0)), (250, 320))
+            if score > high_score:
+                high_score = score
+                save_score(high_score)
     elif game_state == STATE_CHOOSING_DIFF:
         screen.fill((10, 10, 20)) # Background
         mouse_pos = pygame.mouse.get_pos()

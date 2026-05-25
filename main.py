@@ -1,4 +1,5 @@
 import pygame
+import pygame_widgets
 import os
 import sys
 import random
@@ -24,6 +25,7 @@ running = True
 
 # --- FONT LOADING ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Replace your old FONT_PATH logic with this:
 FONT_PATH = resource_path("WorkSans-Regular.ttf")
 
 if os.path.exists(FONT_PATH):
@@ -54,6 +56,7 @@ def wrap_text(text, font, max_width):
 # --- GAME SETUP ---
 STATE_TITLE = 0
 STATE_PLAYING = 1
+STATE_CHOOSING_DIFF = 2
 game_state = STATE_TITLE  
 
 show_message_bad = False
@@ -71,11 +74,23 @@ bricks = reset_bricks()
 ball_rect = pygame.Rect(640, 450, 24, 24)
 speed_x, speed_y = 7, -7
 paddle_rect = pygame.Rect(540, 660, 200, 20)
-paddle_speed = 12
+paddle_speed = 18
 flash_timer = 0.0          
-flash_speed = 0.05         
+flash_speed = 0.01         
 COLOR_PADDLE_BASE = (255, 255, 255)
-COLOR_PADDLE_FLASH = (0, 0, 255)
+COLOR_PADDLE_FLASH = (66, 66, 255)
+
+
+# DIFFICULTY VARIABLES
+difficulty_buttons = [
+    {"rect": pygame.Rect(440, 200, 400, 80), "label": "Easy", "speed": 7},
+    {"rect": pygame.Rect(440, 320, 400, 80), "label": "Medium", "speed": 9},
+    {"rect": pygame.Rect(440, 440, 400, 80), "label": "Hard", "speed": 14},
+    {"rect": pygame.Rect(440, 560, 400, 80), "label": "Holy", "speed": 17}
+]
+
+# Keep track of which speed to use
+game_speed = 8
 
 # --- MAIN LOOP ---
 while running:
@@ -83,6 +98,15 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         
+        if event.type == pygame.MOUSEBUTTONDOWN and game_state == STATE_CHOOSING_DIFF:
+            mouse_pos = event.pos
+            for btn in difficulty_buttons:
+                if btn["rect"].collidepoint(mouse_pos):
+                    game_speed = btn["speed"]
+                    speed_x = game_speed
+                    speed_y = -game_speed
+                    game_state = STATE_PLAYING
+
         if event.type == pygame.KEYDOWN:
             # Fullscreen Toggle
             if event.key == pygame.K_F11:
@@ -92,13 +116,13 @@ while running:
             
             # Start Game
             if game_state == STATE_TITLE and event.key == pygame.K_RETURN:
-                game_state = STATE_PLAYING
+                game_state = STATE_CHOOSING_DIFF
             
-            # --- FIXED: ADDED RESET LOGIC ---
             if game_state == STATE_PLAYING and (show_message_bad or show_message_good):
                 if event.key == pygame.K_SPACE:
-                    ball_rect.x, ball_rect.y = 640, 450
-                    speed_x, speed_y = 7, -7
+                    ball_rect.center = (640, 450)
+                    speed_x = game_speed 
+                    speed_y = -game_speed
                     show_message_bad = False
                     show_message_good = False
                     flash_timer = 0.0
@@ -172,9 +196,27 @@ while running:
         pygame.draw.rect(screen, (r, g, b), paddle_rect)
 
         if show_message_bad: 
-            screen.blit(font_sub.render("You lose! Press SPACE to restart", True, (255, 255, 255)), (430, 320))
+            screen.blit(font_sub.render("You lose! Press SPACE to restart.", True, (255, 0, 0)), (430, 320))
         elif show_message_good: 
-            screen.blit(font_sub.render("Victory! Press SPACE for next round", True, (0, 255, 0)), (410, 320))
+            screen.blit(font_sub.render("You win! Press SPACE to start a new round.", True, (0, 255, 0)), (410, 320))
+    elif game_state == STATE_CHOOSING_DIFF:
+        screen.fill((10, 10, 20)) # Background
+        mouse_pos = pygame.mouse.get_pos()
+        
+        for btn in difficulty_buttons:
+            # Check for hover
+            is_hovered = btn["rect"].collidepoint(mouse_pos)
+            color = (100, 100, 100) if is_hovered else (50, 50, 50)
+            
+            # Draw the button
+            pygame.draw.rect(screen, color, btn["rect"], border_radius=15)
+            pygame.draw.rect(screen, (255, 255, 255), btn["rect"], width=3, border_radius=15)
+            
+            # Draw the text centered
+            text_surf = font_sub.render(btn["label"], True, (255, 255, 255))
+            text_rect = text_surf.get_rect(center=btn["rect"].center)
+            screen.blit(text_surf, text_rect)
+
             
     pygame.display.update()
 

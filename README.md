@@ -5,7 +5,7 @@ The angle and direction of the ball is also randomized every time you hit the pa
 Difficulties! Easy, Medium, Hard, and the HARDEST ONE YET, Holy difficulty! If you are ready for super-fast brick breaking action, give holy mode a try!
 **YOU WILL NEED A FOLDER TO PUT THE EXECUTABLE IN FOR THE SCORE FILES TO STAY IN**
 
-***COMPILE IN PYGAME-CE FOR THE BEST EXPERIENCE OF BRICK BLASTERS***
+***COMPILE WITH PYGAME-CE INSTEAD OF PYGAME FOR THE BEST EXPERIENCE OF BRICK BLASTERS***
 How to compile: It's pretty simple, just pip install pyinstaller and then run pyinstaller --noconsole --onefile --exclude-module=numpy --add-data "WorkSans-Regular.ttf:." main.py on macos/linux and pyinstaller --noconsole --onefile --exclude-module=numpy --add-data "WorkSans-Regular.ttf;." main.py  on windows
 
 Enjoy the game!

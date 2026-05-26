@@ -11,7 +11,7 @@ You can change the background song to any newgrounds song you want! Isn't that n
 ***COMPILE WITH PYGAME-CE INSTEAD OF PYGAME FOR THE BEST EXPERIENCE OF BRICK BLASTERS***
 
 ***V1.3 AND ABOVE INSTRUCTIONS***
-How to compile: It's pretty simple, just pip install pygame-ce pygame-widgets cryptography pyinstaller and then run pyinstaller --noconfirm --onedir --windowed --icon="icon.png" --add-data "icon.png:." --add-data "hit-sound.mp3:." --add-data "WorkSans-Regular.ttf:." --add-data "background.mp3:." --add-data "break.mp3:." main.py on macos/linux and pyinstaller --noconfirm --onedir --windowed --icon="icon.png" --add-data "icon.png;." --add-data "hit-sound.mp3;." --add-data "WorkSans-Regular.ttf;." --add-data "background.mp3;." --add-data "break.mp3;." main.py on windows.
+How to compile: It's pretty simple, just pip install pygame-ce pygame-widgets cryptography  beautifulsoup4 requests pyinstaller and then run pyinstaller --noconfirm --onedir --windowed --icon="icon.png" --add-data "icon.png:." --add-data "hit-sound.mp3:." --add-data "WorkSans-Regular.ttf:." --add-data "background.mp3:." --add-data "break.mp3:." main.py on macos/linux and pyinstaller --noconfirm --onedir --windowed --icon="icon.png" --add-data "icon.png;." --add-data "hit-sound.mp3;." --add-data "WorkSans-Regular.ttf;." --add-data "background.mp3;." --add-data "break.mp3;." main.py on windows.
 
 ***V1.2 INSTRUCTIONS***
 How to compile: It's pretty simple, just pip install pygame-ce cryptography pyinstaller and then run pyinstaller --noconsole --onefile --exclude-module=numpy --add-data "WorkSans-Regular.ttf:." main.py on macos/linux and pyinstaller --noconsole --onefile --exclude-module=numpy --add-data "WorkSans-Regular.ttf;." main.py on windows.
